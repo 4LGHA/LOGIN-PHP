@@ -1,0 +1,59 @@
+================================================================================
+                    🌐 HOW TO ACCESS YOUR LOGIN SYSTEM
+================================================================================
+
+⚠️ IMPORTANT: Your project needs to be in C:\xampp\htdocs\ to work!
+
+================================================================================
+                    ⚡ QUICK ACCESS (2 STEPS)
+================================================================================
+
+STEP 1: Copy Project to XAMPP
+------------------------------
+Double-click this file: COPY_TO_XAMPP.bat
+
+This will automatically copy your project to the correct location.
+
+STEP 2: Open Browser
+---------------------
+The browser will open automatically, or go to:
+  http://localhost/login-system/
+
+Login with:
+  Username: admin
+  Password: Admin@123
+
+DONE! 🎉
+
+================================================================================
+                    📋 MANUAL COPY (IF BATCH FILE DOESN'T WORK)
+================================================================================
+
+1. Open File Explorer
+2. Copy this folder: d:\vscode project\LOGIN PHP
+3. Paste into: C:\xampp\htdocs\
+4. Rename to: login-system (remove the space)
+5. Open browser: http://localhost/login-system/
+6. Login: admin / Admin@123
+
+================================================================================
+                    ✅ WHAT'S ALREADY DONE
+================================================================================
+
+✓ Database created: login_system
+✓ Tables created: 5 tables
+✓ Admin user created: admin / Admin@123
+✓ Test user created: testuser / User@123
+✓ Password hashes: VERIFIED WORKING
+✓ XAMPP running: Apache & MySQL active
+
+All you need to do is copy the project to C:\xampp\htdocs\!
+
+================================================================================
+                    🔗 AFTER COPYING, USE THIS LINK
+================================================================================
+
+http://localhost/login-system/
+
+================================================================================
+

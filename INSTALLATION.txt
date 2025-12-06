@@ -1,0 +1,120 @@
+================================================================================
+    SECURE PHP LOGIN SYSTEM - QUICK INSTALLATION GUIDE
+================================================================================
+
+REQUIREMENTS:
+-------------
+✓ XAMPP (Apache + MySQL + PHP 7.4+)
+✓ Web Browser
+
+INSTALLATION STEPS:
+-------------------
+
+1. INSTALL XAMPP
+   - Download from: https://www.apachefriends.org/
+   - Install on your computer
+   - Open XAMPP Control Panel
+   - Start "Apache" and "MySQL" modules
+
+2. COPY PROJECT FILES
+   - Copy this entire folder to: C:\xampp\htdocs\
+   - Rename folder to: login-system
+   - Final path: C:\xampp\htdocs\login-system\
+
+3. CREATE DATABASE
+   Option A - Using Import:
+   - Open browser: http://localhost/phpmyadmin
+   - Click "Import" tab
+   - Choose file: database/schema.sql
+   - Click "Go"
+   
+   Option B - Manual:
+   - Open browser: http://localhost/phpmyadmin
+   - Click "New" database
+   - Name: login_system
+   - Click "SQL" tab
+   - Copy contents from database/schema.sql
+   - Click "Go"
+
+4. ACCESS THE SYSTEM
+   - Open browser
+   - Go to: http://localhost/login-system/
+   - Login with default credentials below
+
+DEFAULT LOGIN CREDENTIALS:
+--------------------------
+
+ADMIN ACCOUNT:
+Username: admin
+Password: Admin@123
+
+USER ACCOUNT:
+Username: testuser
+Password: User@123
+
+IMPORTANT NOTES:
+----------------
+✓ Change default passwords after first login
+✓ The system is ready to use immediately after installation
+✓ All security features are pre-configured
+✓ Database includes sample data for testing
+
+FEATURES INCLUDED:
+------------------
+✓ Password strength checker (8+ chars, uppercase, lowercase, number, special)
+✓ Account lockout after 3 failed login attempts
+✓ Admin user management (add, edit, activate, deactivate, unlock, reset)
+✓ User restrictions (Add, Edit, View, Delete permissions)
+✓ Activity logging and monitoring
+✓ Secure password hashing
+✓ CSRF protection
+✓ SQL injection prevention
+✓ XSS protection
+
+TROUBLESHOOTING:
+----------------
+
+Problem: Database connection error
+Solution: 
+- Check MySQL is running in XAMPP
+- Verify database "login_system" exists
+- Check config/database.php settings
+
+Problem: Page not found
+Solution:
+- Ensure folder is in C:\xampp\htdocs\
+- Check Apache is running
+- Use correct URL: http://localhost/login-system/
+
+Problem: Cannot login
+Solution:
+- Use exact credentials (case-sensitive)
+- Clear browser cache
+- Check database has users table with data
+
+FOLDER STRUCTURE:
+-----------------
+login-system/
+├── admin/          → Admin panel
+├── user/           → User panel
+├── assets/         → CSS, JavaScript
+├── config/         → Database configuration
+├── database/       → SQL schema
+├── includes/       → PHP functions
+├── login.php       → Login page
+└── README.md       → Full documentation
+
+NEXT STEPS:
+-----------
+1. Login as admin
+2. Change default passwords
+3. Create new users
+4. Configure user permissions
+5. Test all features
+
+For detailed documentation, see README.md
+
+================================================================================
+                    INSTALLATION COMPLETE - ENJOY!
+================================================================================
+
