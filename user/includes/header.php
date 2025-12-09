@@ -23,6 +23,10 @@
                    href="dashboard.php">
                     <i class="bi bi-house-door"></i> Dashboard
                 </a>
+                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'notes.php' ? 'active' : '' ?>" 
+                   href="notes.php">
+                    <i class="bi bi-sticky"></i> My Notes
+                </a>
                 <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'change-password.php' ? 'active' : '' ?>" 
                    href="change-password.php">
                     <i class="bi bi-key"></i> Change Password
