@@ -71,15 +71,23 @@ include 'includes/header.php';
                             <td>
                                 <?php if (hasPermission('can_view')): ?>
                                     <span class="badge bg-info">View</span>
+                                <?php else: ?>
+                                    <span class="badge bg-secondary">View <i class="bi bi-lock"></i></span>
                                 <?php endif; ?>
                                 <?php if (hasPermission('can_add')): ?>
                                     <span class="badge bg-success">Add</span>
+                                <?php else: ?>
+                                    <span class="badge bg-secondary">Add <i class="bi bi-lock"></i></span>
                                 <?php endif; ?>
                                 <?php if (hasPermission('can_edit')): ?>
                                     <span class="badge bg-primary">Edit</span>
+                                <?php else: ?>
+                                    <span class="badge bg-secondary">Edit <i class="bi bi-lock"></i></span>
                                 <?php endif; ?>
                                 <?php if (hasPermission('can_delete')): ?>
                                     <span class="badge bg-danger">Delete</span>
+                                <?php else: ?>
+                                    <span class="badge bg-secondary">Delete <i class="bi bi-lock"></i></span>
                                 <?php endif; ?>
                             </td>
                         </tr>

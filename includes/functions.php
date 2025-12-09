@@ -99,6 +99,16 @@ function hasPermission($permission) {
 }
 
 /**
+ * Require user permission - redirects if user doesn't have permission
+ */
+function requirePermission($permission) {
+    if (!hasPermission($permission)) {
+        setFlashMessage('You do not have permission to perform this action.', 'danger');
+        redirect('dashboard.php');
+    }
+}
+
+/**
  * Log activity
  */
 function logActivity($action, $description = null, $user_id = null) {
