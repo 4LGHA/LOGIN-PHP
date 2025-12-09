@@ -68,14 +68,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get all users with their restrictions
+// Get all users
 $stmt = $db->query("
-    SELECT DISTINCT u.*, ur.can_add, ur.can_edit, ur.can_view, ur.can_delete
-    FROM users u
-    LEFT JOIN user_restrictions ur ON u.id = ur.user_id
-    ORDER BY u.created_at DESC
+    SELECT *
+    FROM users
+    ORDER BY created_at DESC
 ");
 $users = $stmt->fetchAll();
+
+// Get all restrictions
+$stmt = $db->query("SELECT * FROM user_restrictions");
+$restrictions = $stmt->fetchAll();
+$restrictionMap = [];
+foreach ($restrictions as $restriction) {
+    $restrictionMap[$restriction['user_id']] = $restriction;
+}
+
+// Merge restrictions into users
+foreach ($users as &$user) {
+    if (isset($restrictionMap[$user['id']])) {
+        $user['can_add'] = $restrictionMap[$user['id']]['can_add'];
+        $user['can_edit'] = $restrictionMap[$user['id']]['can_edit'];
+        $user['can_view'] = $restrictionMap[$user['id']]['can_view'];
+        $user['can_delete'] = $restrictionMap[$user['id']]['can_delete'];
+    } else {
+        $user['can_add'] = 0;
+        $user['can_edit'] = 0;
+        $user['can_view'] = 0;
+        $user['can_delete'] = 0;
+    }
+}
 
 $pageTitle = 'Manage Users';
 include 'includes/header.php';
