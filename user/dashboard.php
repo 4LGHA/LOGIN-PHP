@@ -133,9 +133,9 @@ include 'includes/header.php';
                     <h5 class="mb-0"><i class="bi bi-clock-history"></i> Your Recent Login Attempts</h5>
                 </div>
                 <div class="card-body p-0">
-                    <div class="table-responsive">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                         <table class="table table-hover mb-0">
-                            <thead class="table-light">
+                            <thead class="table-light" style="position: sticky; top: 0; z-index: 10;">
                                 <tr>
                                     <th>IP Address</th>
                                     <th>Status</th>
@@ -170,9 +170,9 @@ include 'includes/header.php';
                     <h5 class="mb-0"><i class="bi bi-activity"></i> Your Recent Activities</h5>
                 </div>
                 <div class="card-body p-0">
-                    <div class="table-responsive">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                         <table class="table table-hover mb-0">
-                            <thead class="table-light">
+                            <thead class="table-light" style="position: sticky; top: 0; z-index: 10;">
                                 <tr>
                                     <th>Action</th>
                                     <th>Description</th>
