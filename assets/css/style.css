@@ -21,12 +21,26 @@ body {
 }
 
 .card {
-    border: none;
-    border-radius: 15px;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 .card-body {
     padding: 2rem;
+}
+
+.card-header {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.table-responsive {
+    border: none;
+}
+
+.table {
+    margin-bottom: 0;
+    border-collapse: collapse;
 }
 
 /* Password Strength Indicator */
