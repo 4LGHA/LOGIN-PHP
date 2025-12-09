@@ -8,8 +8,11 @@ if (!isLoggedIn() || !isAdmin()) {
 $db = getDB();
 $userId = intval($_GET['id'] ?? 0);
 
-// Get user data
-$stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+// Get user data with restrictions
+$stmt = $db->prepare("SELECT u.*, ur.can_add, ur.can_edit, ur.can_view, ur.can_delete
+FROM users u
+LEFT JOIN user_restrictions ur ON u.id = ur.user_id
+WHERE u.id = ?");
 $stmt->execute([$userId]);
 $user = $stmt->fetch();
 
@@ -30,6 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $confirm_password = $_POST['confirm_password'] ?? '';
         $user_level = sanitize($_POST['user_level'] ?? 'user');
         $is_active = isset($_POST['is_active']) ? 1 : 0;
+        $can_add = isset($_POST['can_add']) ? 1 : 0;
+        $can_edit = isset($_POST['can_edit']) ? 1 : 0;
+        $can_view = isset($_POST['can_view']) ? 1 : 0;
+        $can_delete = isset($_POST['can_delete']) ? 1 : 0;
         
         $errors = [];
         
@@ -84,6 +91,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         WHERE id = ?
                     ");
                     $stmt->execute([$username, $email, $full_name, $user_level, $is_active, $userId]);
+                }
+                
+                // Update or insert user restrictions
+                // First, check if restrictions exist for this user
+                $stmt = $db->prepare("SELECT id FROM user_restrictions WHERE user_id = ?");
+                $stmt->execute([$userId]);
+                $restriction = $stmt->fetch();
+                
+                if ($restriction) {
+                    // Update existing restriction
+                    $stmt = $db->prepare("
+                        UPDATE user_restrictions 
+                        SET can_add = ?, can_edit = ?, can_view = ?, can_delete = ?
+                        WHERE user_id = ?
+                    ");
+                    $stmt->execute([$can_add, $can_edit, $can_view, $can_delete, $userId]);
+                } else {
+                    // Insert new restriction
+                    $stmt = $db->prepare("
+                        INSERT INTO user_restrictions (user_id, can_add, can_edit, can_view, can_delete)
+                        VALUES (?, ?, ?, ?, ?)
+                    ");
+                    $stmt->execute([$userId, $can_add, $can_edit, $can_view, $can_delete]);
                 }
                 
                 $db->commit();
@@ -196,6 +226,55 @@ include 'includes/header.php';
                                     <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
                                            <?= $user['is_active'] ? 'checked' : '' ?>>
                                     <label class="form-check-label" for="is_active">Active Account</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card bg-light mb-3">
+                            <div class="card-header bg-secondary text-white">
+                                <h6 class="mb-0"><i class="bi bi-shield-lock"></i> User Restrictions</h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="small text-muted mb-3">Control what actions this user can perform:</p>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="can_view" name="can_view" 
+                                                   <?= $user['can_view'] ? 'checked' : '' ?>>
+                                            <label class="form-check-label" for="can_view">
+                                                <i class="bi bi-eye"></i> Can View
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="can_add" name="can_add" 
+                                                   <?= $user['can_add'] ? 'checked' : '' ?>>
+                                            <label class="form-check-label" for="can_add">
+                                                <i class="bi bi-plus-circle"></i> Can Add
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="can_edit" name="can_edit" 
+                                                   <?= $user['can_edit'] ? 'checked' : '' ?>>
+                                            <label class="form-check-label" for="can_edit">
+                                                <i class="bi bi-pencil"></i> Can Edit
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="can_delete" name="can_delete" 
+                                                   <?= $user['can_delete'] ? 'checked' : '' ?>>
+                                            <label class="form-check-label" for="can_delete">
+                                                <i class="bi bi-trash"></i> Can Delete
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
