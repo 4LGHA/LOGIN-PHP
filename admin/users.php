@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Get all users with their restrictions
 $stmt = $db->query("
-    SELECT u.*, ur.can_add, ur.can_edit, ur.can_view, ur.can_delete
+    SELECT DISTINCT u.*, ur.can_add, ur.can_edit, ur.can_view, ur.can_delete
     FROM users u
     LEFT JOIN user_restrictions ur ON u.id = ur.user_id
     ORDER BY u.created_at DESC
