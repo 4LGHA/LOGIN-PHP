@@ -19,40 +19,10 @@ if ($userId <= 0) {
     redirect('users.php');
 }
 
-// Get user data with restrictions
-// Use COALESCE to handle cases where columns might not exist yet
-try {
-    $stmt = $db->prepare("SELECT u.*, 
-        COALESCE(ur.can_add, 0) as can_add, 
-        COALESCE(ur.can_edit, 0) as can_edit, 
-        COALESCE(ur.can_view, 1) as can_view, 
-        COALESCE(ur.can_delete, 0) as can_delete, 
-        COALESCE(ur.can_edit_users, 0) as can_edit_users, 
-        COALESCE(ur.can_activate_users, 0) as can_activate_users, 
-        COALESCE(ur.can_unlock_users, 0) as can_unlock_users, 
-        COALESCE(ur.can_reset_passwords, 0) as can_reset_passwords
-    FROM users u
-    LEFT JOIN user_restrictions ur ON u.id = ur.user_id
-    WHERE u.id = ?");
-    $stmt->execute([$userId]);
-    $user = $stmt->fetch();
-} catch (Exception $e) {
-    // If query fails due to missing columns, try with basic columns only
-    error_log("Edit user query failed: " . $e->getMessage());
-    $stmt = $db->prepare("SELECT u.*, 
-        0 as can_add, 
-        0 as can_edit, 
-        1 as can_view, 
-        0 as can_delete, 
-        0 as can_edit_users, 
-        0 as can_activate_users, 
-        0 as can_unlock_users, 
-        0 as can_reset_passwords
-    FROM users u
-    WHERE u.id = ?");
-    $stmt->execute([$userId]);
-    $user = $stmt->fetch();
-}
+// Get user data
+$stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->execute([$userId]);
+$user = $stmt->fetch();
 
 if (!$user) {
     setFlashMessage('User not found.', 'danger');
@@ -71,14 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $confirm_password = $_POST['confirm_password'] ?? '';
         $user_level = sanitize($_POST['user_level'] ?? 'user');
         $is_active = isset($_POST['is_active']) ? 1 : 0;
-        $can_add = isset($_POST['can_add']) ? 1 : 0;
-        $can_edit = isset($_POST['can_edit']) ? 1 : 0;
-        $can_view = isset($_POST['can_view']) ? 1 : 0;
-        $can_delete = isset($_POST['can_delete']) ? 1 : 0;
-        $can_edit_users = isset($_POST['can_edit_users']) ? 1 : 0;
-        $can_activate_users = isset($_POST['can_activate_users']) ? 1 : 0;
-        $can_unlock_users = isset($_POST['can_unlock_users']) ? 1 : 0;
-        $can_reset_passwords = isset($_POST['can_reset_passwords']) ? 1 : 0;
         
         $errors = [];
         
@@ -115,8 +77,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (empty($errors)) {
             try {
-                $db->beginTransaction();
-                
                 // Update user
                 if (!empty($password)) {
                     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -135,36 +95,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute([$username, $email, $full_name, $user_level, $is_active, $userId]);
                 }
                 
-                // Update or insert user restrictions
-                // First, check if restrictions exist for this user
-                $stmt = $db->prepare("SELECT id FROM user_restrictions WHERE user_id = ?");
-                $stmt->execute([$userId]);
-                $restriction = $stmt->fetch();
-                
-                if ($restriction) {
-                    // Update existing restriction
-                    $stmt = $db->prepare("
-                        UPDATE user_restrictions 
-                        SET can_add = ?, can_edit = ?, can_view = ?, can_delete = ?, can_edit_users = ?, can_activate_users = ?, can_unlock_users = ?, can_reset_passwords = ?
-                        WHERE user_id = ?
-                    ");
-                    $stmt->execute([$can_add, $can_edit, $can_view, $can_delete, $can_edit_users, $can_activate_users, $can_unlock_users, $can_reset_passwords, $userId]);
-                } else {
-                    // Insert new restriction
-                    $stmt = $db->prepare("
-                        INSERT INTO user_restrictions (user_id, can_add, can_edit, can_view, can_delete, can_edit_users, can_activate_users, can_unlock_users, can_reset_passwords)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ");
-                    $stmt->execute([$userId, $can_add, $can_edit, $can_view, $can_delete, $can_edit_users, $can_activate_users, $can_unlock_users, $can_reset_passwords]);
-                }
-                
-                $db->commit();
-                
                 logActivity('user_updated', "Updated user: $username");
                 setFlashMessage('User updated successfully!', 'success');
                 redirect('users.php');
             } catch (Exception $e) {
-                $db->rollBack();
                 $errors[] = 'Failed to update user: ' . $e->getMessage();
             }
         }
@@ -268,101 +202,6 @@ include 'includes/header.php';
                                     <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
                                            <?= $user['is_active'] ? 'checked' : '' ?>>
                                     <label class="form-check-label" for="is_active">Active Account</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card bg-light mb-3">
-                            <div class="card-header bg-secondary text-white">
-                                <h6 class="mb-0"><i class="bi bi-shield-lock"></i> User Restrictions</h6>
-                            </div>
-                            <div class="card-body">
-                                <h6 class="mb-3">General Permissions</h6>
-                                <p class="small text-muted mb-3">Control what actions this user can perform:</p>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox" id="can_view" name="can_view" 
-                                                   <?= $user['can_view'] ? 'checked' : '' ?>>
-                                            <label class="form-check-label" for="can_view">
-                                                <i class="bi bi-eye"></i> Can View
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox" id="can_add" name="can_add" 
-                                                   <?= $user['can_add'] ? 'checked' : '' ?>>
-                                            <label class="form-check-label" for="can_add">
-                                                <i class="bi bi-plus-circle"></i> Can Add
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox" id="can_edit" name="can_edit" 
-                                                   <?= $user['can_edit'] ? 'checked' : '' ?>>
-                                            <label class="form-check-label" for="can_edit">
-                                                <i class="bi bi-pencil"></i> Can Edit
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox" id="can_delete" name="can_delete" 
-                                                   <?= $user['can_delete'] ? 'checked' : '' ?>>
-                                            <label class="form-check-label" for="can_delete">
-                                                <i class="bi bi-trash"></i> Can Delete
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <hr>
-
-                                <h6 class="mb-3">Admin Permissions</h6>
-                                <p class="small text-muted mb-3">Control admin actions this user can perform:</p>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox" id="can_edit_users" name="can_edit_users" 
-                                                   <?= $user['can_edit_users'] ? 'checked' : '' ?>>
-                                            <label class="form-check-label" for="can_edit_users">
-                                                <i class="bi bi-pencil-square"></i> Can Edit Users
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox" id="can_activate_users" name="can_activate_users" 
-                                                   <?= $user['can_activate_users'] ? 'checked' : '' ?>>
-                                            <label class="form-check-label" for="can_activate_users">
-                                                <i class="bi bi-check-circle"></i> Can Activate Users
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox" id="can_unlock_users" name="can_unlock_users" 
-                                                   <?= $user['can_unlock_users'] ? 'checked' : '' ?>>
-                                            <label class="form-check-label" for="can_unlock_users">
-                                                <i class="bi bi-unlock"></i> Can Unlock Users
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox" id="can_reset_passwords" name="can_reset_passwords" 
-                                                   <?= $user['can_reset_passwords'] ? 'checked' : '' ?>>
-                                            <label class="form-check-label" for="can_reset_passwords">
-                                                <i class="bi bi-key"></i> Can Reset Passwords
-                                            </label>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>

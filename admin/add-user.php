@@ -26,12 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user_level = sanitize($_POST['user_level'] ?? 'user');
         $is_active = isset($_POST['is_active']) ? 1 : 0;
         
-        // Restrictions
-        $can_add = isset($_POST['can_add']) ? 1 : 0;
-        $can_edit = isset($_POST['can_edit']) ? 1 : 0;
-        $can_view = isset($_POST['can_view']) ? 1 : 0;
-        $can_delete = isset($_POST['can_delete']) ? 1 : 0;
-        
         $errors = [];
         
         // Validation
@@ -66,8 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (empty($errors)) {
             try {
-                $db->beginTransaction();
-                
                 // Insert user
                 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
                 $stmt = $db->prepare("
@@ -75,22 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     VALUES (?, ?, ?, ?, ?, ?)
                 ");
                 $stmt->execute([$username, $hashedPassword, $email, $full_name, $user_level, $is_active]);
-                $userId = $db->lastInsertId();
-                
-                // Insert restrictions
-                $stmt = $db->prepare("
-                    INSERT INTO user_restrictions (user_id, can_add, can_edit, can_view, can_delete) 
-                    VALUES (?, ?, ?, ?, ?)
-                ");
-                $stmt->execute([$userId, $can_add, $can_edit, $can_view, $can_delete]);
-                
-                $db->commit();
                 
                 logActivity('user_created', "Created new user: $username");
                 setFlashMessage('User created successfully!', 'success');
                 redirect('users.php');
             } catch (Exception $e) {
-                $db->rollBack();
                 $errors[] = 'Failed to create user: ' . $e->getMessage();
             }
         }
@@ -189,39 +170,6 @@ include 'includes/header.php';
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
                                     <label class="form-check-label" for="is_active">Active Account</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card bg-light mb-3">
-                            <div class="card-body">
-                                <h6 class="card-title">User Restrictions</h6>
-                                <p class="text-muted small">Select permissions for this user (Admin users have full access)</p>
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="can_view" name="can_view" checked>
-                                            <label class="form-check-label" for="can_view">Can View</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="can_add" name="can_add">
-                                            <label class="form-check-label" for="can_add">Can Add</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="can_edit" name="can_edit">
-                                            <label class="form-check-label" for="can_edit">Can Edit</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="can_delete" name="can_delete">
-                                            <label class="form-check-label" for="can_delete">Can Delete</label>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>

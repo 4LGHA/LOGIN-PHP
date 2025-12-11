@@ -95,10 +95,7 @@ function hasPermission($permission) {
     if (!isLoggedIn()) return false;
     
     // Admin users have full access to all features
-    if (isAdmin()) return true;
-    
-    // Check if permission is set in session for non-admin users
-    return isset($_SESSION['permissions'][$permission]) && $_SESSION['permissions'][$permission] == 1;
+    return isAdmin();
 }
 
 /**

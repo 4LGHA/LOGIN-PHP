@@ -58,26 +58,11 @@ function attemptLogin($username, $password) {
         resetFailedAttempts($user['id']);
         logLoginAttempt($user['id'], $username, $ip_address, true, 'Login successful');
         
-        // Get user restrictions
-        $stmt = $db->prepare("SELECT * FROM user_restrictions WHERE user_id = ?");
-        $stmt->execute([$user['id']]);
-        $restrictions = $stmt->fetch();
-        
         // Set session variables
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['full_name'] = $user['full_name'];
         $_SESSION['user_level'] = $user['user_level'];
-        $_SESSION['permissions'] = [
-            'can_add' => $restrictions['can_add'] ?? 0,
-            'can_edit' => $restrictions['can_edit'] ?? 0,
-            'can_view' => $restrictions['can_view'] ?? 1,
-            'can_delete' => $restrictions['can_delete'] ?? 0,
-            'can_edit_users' => $restrictions['can_edit_users'] ?? 0,
-            'can_activate_users' => $restrictions['can_activate_users'] ?? 0,
-            'can_unlock_users' => $restrictions['can_unlock_users'] ?? 0,
-            'can_reset_passwords' => $restrictions['can_reset_passwords'] ?? 0
-        ];
         
         // Log activity
         logActivity('login', 'User logged in successfully', $user['id']);
