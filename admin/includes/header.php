@@ -36,11 +36,6 @@
                     <i class="bi bi-activity"></i> Activity Log
                 </a>
                 <hr class="text-white-50">
-                <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'admin-tools.php' ? 'active' : '' ?>" 
-                   href="admin-tools.php">
-                    <i class="bi bi-shield-lock"></i> Admin Tools
-                </a>
-                <hr class="text-white-50">
                 <a class="nav-link" href="../logout.php">
                     <i class="bi bi-box-arrow-right"></i> Logout
                 </a>

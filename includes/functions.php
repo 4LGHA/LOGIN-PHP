@@ -99,31 +99,12 @@ function hasPermission($permission) {
 }
 
 /**
- * Check admin permission
- */
-function hasAdminPermission($permission) {
-    if (!isLoggedIn() || !isAdmin()) return false;
-    
-    return isset($_SESSION['admin_permissions'][$permission]) && $_SESSION['admin_permissions'][$permission] == 1;
-}
-
-/**
  * Require user permission - redirects if user doesn't have permission
  */
 function requirePermission($permission) {
     if (!hasPermission($permission)) {
         setFlashMessage('You do not have permission to perform this action.', 'danger');
         redirect('dashboard.php');
-    }
-}
-
-/**
- * Require admin permission - redirects if admin doesn't have permission
- */
-function requireAdminPermission($permission) {
-    if (!isAdmin() || !hasAdminPermission($permission)) {
-        setFlashMessage('You do not have permission to access this feature.', 'danger');
-        redirect('../admin/dashboard.php');
     }
 }
 

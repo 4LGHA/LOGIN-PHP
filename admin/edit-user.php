@@ -8,13 +8,45 @@ if (!isLoggedIn() || !isAdmin()) {
 $db = getDB();
 $userId = intval($_GET['id'] ?? 0);
 
+if ($userId <= 0) {
+    setFlashMessage('Invalid user ID.', 'danger');
+    redirect('users.php');
+}
+
 // Get user data with restrictions
-$stmt = $db->prepare("SELECT u.*, ur.can_add, ur.can_edit, ur.can_view, ur.can_delete, ur.can_edit_users, ur.can_activate_users, ur.can_unlock_users, ur.can_reset_passwords
-FROM users u
-LEFT JOIN user_restrictions ur ON u.id = ur.user_id
-WHERE u.id = ?");
-$stmt->execute([$userId]);
-$user = $stmt->fetch();
+// Use COALESCE to handle cases where columns might not exist yet
+try {
+    $stmt = $db->prepare("SELECT u.*, 
+        COALESCE(ur.can_add, 0) as can_add, 
+        COALESCE(ur.can_edit, 0) as can_edit, 
+        COALESCE(ur.can_view, 1) as can_view, 
+        COALESCE(ur.can_delete, 0) as can_delete, 
+        COALESCE(ur.can_edit_users, 0) as can_edit_users, 
+        COALESCE(ur.can_activate_users, 0) as can_activate_users, 
+        COALESCE(ur.can_unlock_users, 0) as can_unlock_users, 
+        COALESCE(ur.can_reset_passwords, 0) as can_reset_passwords
+    FROM users u
+    LEFT JOIN user_restrictions ur ON u.id = ur.user_id
+    WHERE u.id = ?");
+    $stmt->execute([$userId]);
+    $user = $stmt->fetch();
+} catch (Exception $e) {
+    // If query fails due to missing columns, try with basic columns only
+    error_log("Edit user query failed: " . $e->getMessage());
+    $stmt = $db->prepare("SELECT u.*, 
+        0 as can_add, 
+        0 as can_edit, 
+        1 as can_view, 
+        0 as can_delete, 
+        0 as can_edit_users, 
+        0 as can_activate_users, 
+        0 as can_unlock_users, 
+        0 as can_reset_passwords
+    FROM users u
+    WHERE u.id = ?");
+    $stmt->execute([$userId]);
+    $user = $stmt->fetch();
+}
 
 if (!$user) {
     setFlashMessage('User not found.', 'danger');
