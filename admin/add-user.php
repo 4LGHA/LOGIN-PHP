@@ -5,6 +5,12 @@ if (!isLoggedIn() || !isAdmin()) {
     redirect('../login.php');
 }
 
+// Check if user has permission to add users
+if (!hasPermission('can_add')) {
+    setFlashMessage('You do not have permission to add users.', 'danger');
+    redirect('users.php');
+}
+
 $db = getDB();
 
 // Handle form submission

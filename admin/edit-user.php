@@ -5,6 +5,12 @@ if (!isLoggedIn() || !isAdmin()) {
     redirect('../login.php');
 }
 
+// Check if user has permission to edit users
+if (!hasPermission('can_edit_users')) {
+    setFlashMessage('You do not have permission to edit users.', 'danger');
+    redirect('users.php');
+}
+
 $db = getDB();
 $userId = intval($_GET['id'] ?? 0);
 

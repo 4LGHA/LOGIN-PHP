@@ -16,12 +16,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $userId = intval($_POST['user_id'] ?? 0);
         
         if ($action === 'unlock') {
+            if (!hasPermission('can_unlock_users')) {
+                setFlashMessage('You do not have permission to unlock users.', 'danger');
+                redirect('lock-management.php');
+            }
             $stmt = $db->prepare("UPDATE users SET is_locked = 0, failed_attempts = 0, last_failed_attempt = NULL WHERE id = ?");
             $stmt->execute([$userId]);
             logActivity('account_unlocked', "Unlocked user ID: $userId");
             setFlashMessage('Account unlocked successfully.', 'success');
             redirect('lock-management.php');
         } elseif ($action === 'reset_attempts') {
+            if (!hasPermission('can_reset_passwords')) {
+                setFlashMessage('You do not have permission to reset login attempts.', 'danger');
+                redirect('lock-management.php');
+            }
             $stmt = $db->prepare("UPDATE users SET failed_attempts = 0, last_failed_attempt = NULL WHERE id = ?");
             $stmt->execute([$userId]);
             logActivity('attempts_reset', "Reset login attempts for user ID: $userId");

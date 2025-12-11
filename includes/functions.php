@@ -93,8 +93,8 @@ function redirect($page) {
  */
 function hasPermission($permission) {
     if (!isLoggedIn()) return false;
-    if (isAdmin()) return true; // Admin has all permissions
     
+    // Check if permission is set in session
     return isset($_SESSION['permissions'][$permission]) && $_SESSION['permissions'][$permission] == 1;
 }
 
