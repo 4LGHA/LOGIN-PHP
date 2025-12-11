@@ -38,6 +38,10 @@ CREATE TABLE IF NOT EXISTS user_restrictions (
     can_edit TINYINT(1) DEFAULT 0,
     can_view TINYINT(1) DEFAULT 1,
     can_delete TINYINT(1) DEFAULT 0,
+    can_edit_users TINYINT(1) DEFAULT 0,
+    can_activate_users TINYINT(1) DEFAULT 0,
+    can_unlock_users TINYINT(1) DEFAULT 0,
+    can_reset_passwords TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -123,8 +127,8 @@ VALUES (
 );
 
 -- Insert admin restrictions (full access)
-INSERT INTO user_restrictions (user_id, can_add, can_edit, can_view, can_delete) 
-VALUES (1, 1, 1, 1, 1);
+INSERT INTO user_restrictions (user_id, can_add, can_edit, can_view, can_delete, can_edit_users, can_activate_users, can_unlock_users, can_reset_passwords) 
+VALUES (1, 1, 1, 1, 1, 1, 1, 1, 1);
 
 -- ============================================
 -- INSERT SAMPLE REGULAR USER
@@ -142,6 +146,6 @@ VALUES (
 );
 
 -- Insert user restrictions (view only)
-INSERT INTO user_restrictions (user_id, can_add, can_edit, can_view, can_delete) 
-VALUES (2, 0, 0, 1, 0);
+INSERT INTO user_restrictions (user_id, can_add, can_edit, can_view, can_delete, can_edit_users, can_activate_users, can_unlock_users, can_reset_passwords) 
+VALUES (2, 0, 0, 1, 0, 0, 0, 0, 0);
 

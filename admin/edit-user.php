@@ -9,7 +9,7 @@ $db = getDB();
 $userId = intval($_GET['id'] ?? 0);
 
 // Get user data with restrictions
-$stmt = $db->prepare("SELECT u.*, ur.can_add, ur.can_edit, ur.can_view, ur.can_delete
+$stmt = $db->prepare("SELECT u.*, ur.can_add, ur.can_edit, ur.can_view, ur.can_delete, ur.can_edit_users, ur.can_activate_users, ur.can_unlock_users, ur.can_reset_passwords
 FROM users u
 LEFT JOIN user_restrictions ur ON u.id = ur.user_id
 WHERE u.id = ?");
@@ -37,6 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $can_edit = isset($_POST['can_edit']) ? 1 : 0;
         $can_view = isset($_POST['can_view']) ? 1 : 0;
         $can_delete = isset($_POST['can_delete']) ? 1 : 0;
+        $can_edit_users = isset($_POST['can_edit_users']) ? 1 : 0;
+        $can_activate_users = isset($_POST['can_activate_users']) ? 1 : 0;
+        $can_unlock_users = isset($_POST['can_unlock_users']) ? 1 : 0;
+        $can_reset_passwords = isset($_POST['can_reset_passwords']) ? 1 : 0;
         
         $errors = [];
         
@@ -103,17 +107,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Update existing restriction
                     $stmt = $db->prepare("
                         UPDATE user_restrictions 
-                        SET can_add = ?, can_edit = ?, can_view = ?, can_delete = ?
+                        SET can_add = ?, can_edit = ?, can_view = ?, can_delete = ?, can_edit_users = ?, can_activate_users = ?, can_unlock_users = ?, can_reset_passwords = ?
                         WHERE user_id = ?
                     ");
-                    $stmt->execute([$can_add, $can_edit, $can_view, $can_delete, $userId]);
+                    $stmt->execute([$can_add, $can_edit, $can_view, $can_delete, $can_edit_users, $can_activate_users, $can_unlock_users, $can_reset_passwords, $userId]);
                 } else {
                     // Insert new restriction
                     $stmt = $db->prepare("
-                        INSERT INTO user_restrictions (user_id, can_add, can_edit, can_view, can_delete)
-                        VALUES (?, ?, ?, ?, ?)
+                        INSERT INTO user_restrictions (user_id, can_add, can_edit, can_view, can_delete, can_edit_users, can_activate_users, can_unlock_users, can_reset_passwords)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ");
-                    $stmt->execute([$userId, $can_add, $can_edit, $can_view, $can_delete]);
+                    $stmt->execute([$userId, $can_add, $can_edit, $can_view, $can_delete, $can_edit_users, $can_activate_users, $can_unlock_users, $can_reset_passwords]);
                 }
                 
                 $db->commit();
@@ -235,6 +239,7 @@ include 'includes/header.php';
                                 <h6 class="mb-0"><i class="bi bi-shield-lock"></i> User Restrictions</h6>
                             </div>
                             <div class="card-body">
+                                <h6 class="mb-3">General Permissions</h6>
                                 <p class="small text-muted mb-3">Control what actions this user can perform:</p>
                                 <div class="row">
                                     <div class="col-md-6">
@@ -272,6 +277,51 @@ include 'includes/header.php';
                                                    <?= $user['can_delete'] ? 'checked' : '' ?>>
                                             <label class="form-check-label" for="can_delete">
                                                 <i class="bi bi-trash"></i> Can Delete
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <h6 class="mb-3">Admin Permissions</h6>
+                                <p class="small text-muted mb-3">Control admin actions this user can perform:</p>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="can_edit_users" name="can_edit_users" 
+                                                   <?= $user['can_edit_users'] ? 'checked' : '' ?>>
+                                            <label class="form-check-label" for="can_edit_users">
+                                                <i class="bi bi-pencil-square"></i> Can Edit Users
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="can_activate_users" name="can_activate_users" 
+                                                   <?= $user['can_activate_users'] ? 'checked' : '' ?>>
+                                            <label class="form-check-label" for="can_activate_users">
+                                                <i class="bi bi-check-circle"></i> Can Activate Users
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="can_unlock_users" name="can_unlock_users" 
+                                                   <?= $user['can_unlock_users'] ? 'checked' : '' ?>>
+                                            <label class="form-check-label" for="can_unlock_users">
+                                                <i class="bi bi-unlock"></i> Can Unlock Users
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" id="can_reset_passwords" name="can_reset_passwords" 
+                                                   <?= $user['can_reset_passwords'] ? 'checked' : '' ?>>
+                                            <label class="form-check-label" for="can_reset_passwords">
+                                                <i class="bi bi-key"></i> Can Reset Passwords
                                             </label>
                                         </div>
                                     </div>

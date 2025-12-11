@@ -63,6 +63,14 @@ function attemptLogin($username, $password) {
         $stmt->execute([$user['id']]);
         $restrictions = $stmt->fetch();
         
+        // Get admin permissions (if user is admin)
+        $adminPerms = ['can_view' => 0, 'can_edit' => 0, 'can_add' => 0, 'can_delete' => 0];
+        if ($user['user_level'] === 'admin') {
+            $stmt = $db->prepare("SELECT * FROM admin_permissions WHERE user_id = ?");
+            $stmt->execute([$user['id']]);
+            $adminPerms = $stmt->fetch() ?: $adminPerms;
+        }
+        
         // Set session variables
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
@@ -73,6 +81,12 @@ function attemptLogin($username, $password) {
             'can_edit' => $restrictions['can_edit'] ?? 0,
             'can_view' => $restrictions['can_view'] ?? 1,
             'can_delete' => $restrictions['can_delete'] ?? 0
+        ];
+        $_SESSION['admin_permissions'] = [
+            'can_view' => $adminPerms['can_view'] ?? 0,
+            'can_edit' => $adminPerms['can_edit'] ?? 0,
+            'can_add' => $adminPerms['can_add'] ?? 0,
+            'can_delete' => $adminPerms['can_delete'] ?? 0
         ];
         
         // Log activity
