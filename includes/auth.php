@@ -72,7 +72,11 @@ function attemptLogin($username, $password) {
             'can_add' => $restrictions['can_add'] ?? 0,
             'can_edit' => $restrictions['can_edit'] ?? 0,
             'can_view' => $restrictions['can_view'] ?? 1,
-            'can_delete' => $restrictions['can_delete'] ?? 0
+            'can_delete' => $restrictions['can_delete'] ?? 0,
+            'can_edit_users' => $restrictions['can_edit_users'] ?? 0,
+            'can_activate_users' => $restrictions['can_activate_users'] ?? 0,
+            'can_unlock_users' => $restrictions['can_unlock_users'] ?? 0,
+            'can_reset_passwords' => $restrictions['can_reset_passwords'] ?? 0
         ];
         
         // Log activity
