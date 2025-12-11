@@ -94,9 +94,6 @@ include 'includes/header.php';
                     </table>
                     <hr>
                     <div class="d-flex gap-2">
-                        <a href="notes.php" class="btn btn-primary">
-                            <i class="bi bi-sticky"></i> My Notes
-                        </a>
                         <a href="change-password.php" class="btn btn-secondary">
                             <i class="bi bi-key"></i> Change Password
                         </a>

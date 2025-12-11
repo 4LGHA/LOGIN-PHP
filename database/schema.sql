@@ -98,20 +98,6 @@ CREATE TABLE IF NOT EXISTS activity_log (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================
--- USER NOTES TABLE (For testing permissions)
--- ============================================
-CREATE TABLE IF NOT EXISTS user_notes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    title VARCHAR(100) NOT NULL,
-    content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_user_id (user_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ============================================
 -- INSERT DEFAULT ADMIN USER
 -- Password: Admin@123 (hashed with PASSWORD_DEFAULT)
 -- ============================================
